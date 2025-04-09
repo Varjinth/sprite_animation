@@ -1,31 +1,99 @@
-import React from "react";
+import React, { useState } from "react";
 import Icon from "./Icon";
+import "./Sidebar.css";
 
-export default function Sidebar() {
+
+export default function Sidebar({ sprites,setSprites, addSprite,playAll, onPlay,reset,setReset, repeat, setRepeat}) {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [visible,setVisible] = useState(true);
+  const [selectedSprite, setSelectedSprite] = useState("")
+  let hasAnyMotion = false;
+
+for (let i = 0; i < sprites.length; i++) {
+  if (sprites[i].motions.length > 0) {
+    hasAnyMotion = true;
+    break; 
+  }
+}
+const initialState = [
+  { name: "Cat Sprite", motions: [], x: 0, y: 0 },
+  { name: "Dog Sprite", motions: [], x: 0, y: 200 }
+]
+const [availableSprites, setAvailableSprites] = useState([
+  "Dog Sprite", 
+  "Bird Sprite"
+]);
+
+
+
   return (
-    <div className="w-60 flex-none h-full overflow-y-auto flex flex-col items-start p-2 border-r border-gray-200">
-      <div className="font-bold"> {"Events"} </div>
-      <div className="flex flex-row flex-wrap bg-yellow-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"When "}
-        <Icon name="flag" size={15} className="text-green-600 mx-2" />
-        {"clicked"}
+    <div className="sidebar">
+      <div className="section-title">Events</div>
+
+      <div className="repeat-toggle">
+        <label>
+          <input
+            type="checkbox"
+            checked={repeat}
+            onChange={(e) => setRepeat(e.target.checked)}
+            disabled={!visible}
+          />
+          Repeat
+        </label>
       </div>
-      <div className="flex flex-row flex-wrap bg-yellow-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"When this sprite clicked"}
+
+
+      <button className="play-button" disabled={!visible || !hasAnyMotion}  onClick={()=>{onPlay(true);setVisible(!visible)}}>▶️ Play All</button>
+      <button onClick={()=>{setReset(!reset);onPlay(false);setVisible(true)}}   className="reset-btn">🔁 Reset</button>
+
+      {sprites.map((sprite, idx) => (
+        <div key={idx} className="block yellow-block">
+          {sprite.name}
+        </div>
+      ))}
+
+      <div className="add-sprite" onClick={() => setShowDropdown(!showDropdown)}>
+        <Icon name="plus" size={16} className="add-sprite-icon" />
+        <span>Add Sprite</span>
       </div>
-      <div className="font-bold"> {"Motion"} </div>
-      <div className="flex flex-row flex-wrap bg-blue-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"Move 10 steps"}
+
+      {showDropdown && (
+        <div className="dropdown">
+          <select
+            value={selectedSprite}
+            onChange={(e) => {setSelectedSprite(e.target.value)}}
+          >
+            <option value="">Select sprite</option>
+            {availableSprites.map((sprite, idx) => (
+              <option key={idx} value={sprite}>{sprite}</option>
+            ))}
+          </select>
+          <button className="submit-sprite" onClick={()=>{addSprite(selectedSprite);
+          setAvailableSprites(prev => prev.filter(sprite => sprite !== selectedSprite)); setSelectedSprite('')}
+          }>Add</button>
+        </div>
+      )}
+
+
+
+      <div className="section-title">Motion</div>
+
+      <div
+        className="block blue-block"
+        draggable
+        onDragStart={(e) => e.dataTransfer.setData("motion", "Move 10 steps")}
+      >
+        Move 10 steps
       </div>
-      <div className="flex flex-row flex-wrap bg-blue-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"Turn "}
-        <Icon name="undo" size={15} className="text-white mx-2" />
-        {"15 degrees"}
+
+      <div className="block blue-block"  draggable onDragStart={(e) => e.dataTransfer.setData("motion", "Turn 15 degrees Left")}>
+        Turn <Icon name="undo" size={15} className="icon-inline" /> 15 degrees
       </div>
-      <div className="flex flex-row flex-wrap bg-blue-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"Turn "}
-        <Icon name="redo" size={15} className="text-white mx-2" />
-        {"15 degrees"}
+      <div className="block blue-block"  draggable onDragStart={(e) => e.dataTransfer.setData("motion", "Turn 15 degrees Right")}>
+        Turn <Icon name="redo" size={15} className="icon-inline" /> 15 degrees
+      </div>
+      <div className="block blue-block" draggable onDragStart={(e) => e.dataTransfer.setData("motion", "Go to x:0 y:0")}>
+        Go to x:0 y:0
       </div>
     </div>
   );
