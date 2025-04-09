@@ -14,8 +14,8 @@ module.exports = merge(common, {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, "public", "_redirects"),
-          to: path.resolve(__dirname, "dist", "_redirects") // Update 'dist' if your output is different
+          from: path.resolve(__dirname, "public/_redirects"),
+      to: path.resolve(__dirname, "dist/_redirects"), // Update 'dist' if your output is different
         }
       ]
     })
